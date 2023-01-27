@@ -9,5 +9,12 @@ namespace WeatherApp
         public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
 
         public string? Summary { get; set; }
+
+        public string? Location { get; set; }
+
+        public string? Condition { get; set; }
+
+
+
     }
 }

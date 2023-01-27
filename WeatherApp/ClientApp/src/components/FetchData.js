@@ -1,61 +1,60 @@
 import React, { Component } from 'react';
+import { useEffect } from 'react'
+import './index.css';
+
 
 
 
 export class FetchData extends Component {
-  static displayName = FetchData.name;
+    static displayName = FetchData.name;
 
-  constructor(props) {
-    super(props);
-    this.state = { forecasts: [], loading: true };
-  }
+    constructor(props) {
+        super(props);
+        this.state = {backgrounds: {}, forecasts: {}, loading: true };
+        
+    }
 
-  componentDidMount() {
-    this.populateWeatherData();
-  }
+    async populateWeatherData() {
+        const response = await fetch('weatherforecast');
+        const data = await response.json();
+        this.setState({ forecasts: data, loading: false });
+    }
 
-    static renderForecastsTable(forecasts) {
+
+    componentDidMount() {
+        this.populateWeatherData();
+    }
+
+
+    renderForecastsTable(forecasts) {
+       
         return (
-            <table className='table table-striped' aria-labelledby="tabelLabel">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Temp. (C)</th>
-                        <th>Temp. (F)</th>
-                        <th>Summary</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {forecasts.map(forecast =>
-                        <tr key={forecast.date}>
-                            <td>{forecast.date}</td>
-                            <td>{forecast.temperatureC}</td>
-                            <td>{forecast.temperatureF}</td>
-                            <td>{forecast.summary}</td>
-                        </tr>
-                    )}
-                </tbody>
-            </table>
-        );
+            <div className="container">
+                <div className="heading">
+                    <div className="content">
+                    <p id="location">{forecasts[0].location}</p>
+                    <p id="temp">{`${forecasts[0].temperatureF}\u00B0`}</p>
+                    <p id="condition">{forecasts[0].condition}</p>
+                    <p id="time">{forecasts[0].date}</p>
+                    </div>
+                </div>
+            </div>
+            );
+        
+        
     }
 
     render() {
-        let contents = this.state.loading
-            ? <p><em>Loading...</em></p>
-            : FetchData.renderForecastsTable(this.state.forecasts);
-
+        //makes the content load only when the promise is complete
+        let contents = this.state.loading ? <p>Loading</p>: this.renderForecastsTable(this.state.forecasts);
         return (
+            
+            
             <div>
-                <h1 id="tabelLabel" >Weather forecast</h1>
-                <p>This component demonstrates fetching data from the server.</p>
-                {contents}
+                <video id="background" muted preload onLoad loop autoPlay><source src='https://joy1.videvo.net/videvo_files/video/free/2018-03/large_watermarked/180228_B_04_preview.mp4' type="video/mp4"></source></video>
+                <p>{contents}</p>
             </div>
         );
-  }
+    }
 
-  async populateWeatherData() {
-    const response = await fetch('weatherforecast');
-    const data = await response.json();
-    this.setState({ forecasts: data, loading: false });
-  }
 }

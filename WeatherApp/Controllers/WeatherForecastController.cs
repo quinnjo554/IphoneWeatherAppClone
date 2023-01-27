@@ -13,13 +13,7 @@ namespace WeatherApp.Controllers
         };
 
         //place data in a class then call the class instead
-        public string date;
-
-        public int temperatureC;
-
-        public int temperatureF;
-
-        public string summary;
+        weatherWrapper weatherVars = new weatherWrapper();
 
         private readonly ILogger<WeatherForecastController> _logger;
 
@@ -28,21 +22,34 @@ namespace WeatherApp.Controllers
             _logger = logger;
         }
 
+        public string MillitaryToregual(string time)
+        {
+            DateTime dateTime = DateTime.Parse(time);
+            return dateTime.ToString("h:mm tt");
+        }
+
         //write a method for setting data
         public async Task getData()
         {
             //send api requst
             HttpClient client = new HttpClient();
-            var response = await client.GetAsync("http://api.weatherapi.com/v1/current.json?key=78e51fbcb61a41c0aa605637232601&q=Bismarck&aqi=no");
+            //
+            //TO:DO add a feature to change location
+            //
+            var response = await client.GetAsync("http://api.weatherapi.com/v1/current.json?key=78e51fbcb61a41c0aa605637232601&q=Fargo&aqi=no");
             if (response.IsSuccessStatusCode)
             {
                 //set the data to class variables
                 string textResult = await response.Content.ReadAsStringAsync();
                 var json = JsonConvert.DeserializeObject<dynamic>(textResult);
-                temperatureC = json.current.temp_c;
-                temperatureF = json.current.temp_f;
-                summary = json.current.condition.text;
-                date = "today lol";
+                weatherVars.temperatureC = json.current.temp_c;
+                weatherVars.temperatureF = json.current.temp_f;
+                weatherVars.summary = json.current.condition.text;
+                weatherVars.date = json.location.localtime;
+                weatherVars.location = json.location.name;
+                weatherVars.condition = json.current.condition.text;
+                //get date in correct format
+                weatherVars.date = this.MillitaryToregual(weatherVars.date);
                 Console.WriteLine(json);
             }
             
@@ -55,9 +62,11 @@ namespace WeatherApp.Controllers
            WeatherForecast[] forecasts = new WeatherForecast[]{
                 new WeatherForecast
                 {
-                    Date = date,
-                    TemperatureC = temperatureC,
-                    Summary = summary,
+                    Date = weatherVars.date,
+                    TemperatureC = weatherVars.temperatureC,
+                    Summary = weatherVars.summary,
+                    Location = weatherVars.location,
+                    Condition = weatherVars.condition,
                 }
             };
             return forecasts;
